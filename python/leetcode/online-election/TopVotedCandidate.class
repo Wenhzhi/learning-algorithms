@@ -1,0 +1,73 @@
+// https://leetcode-cn.com/problems/online-election/
+
+import com.alibaba.fastjson.JSON;
+
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+class TopVotedCandidate {
+    List<Integer> tops;
+    Map<Integer, Integer> voteCounts;
+    int[] times;
+
+    public TopVotedCandidate(int[] persons, int[] times) {
+        tops = new ArrayList<Integer>();
+        voteCounts = new HashMap<Integer, Integer>();
+        voteCounts.put(-1, -1);
+        int top = -1;
+        for (int i = 0; i < persons.length; ++i) {
+            int p = persons[i];
+            voteCounts.put(p, voteCounts.getOrDefault(p, 0) + 1);
+            if (voteCounts.get(p) >= voteCounts.get(top)) {
+                top = p;
+            }
+            tops.add(top);
+        }
+        this.times = times;
+    }
+
+    public int q(int t) {
+        int l = 0, r = times.length - 1;
+        // 找到满足 times[l] <= t 的最大的 l
+        while (l < r) {
+            int m = l + (r - l + 1) / 2;
+            if (times[m] <= t) {
+                l = m;
+            } else {
+                r = m - 1;
+            }
+        }
+        return tops.get(l);
+    }
+}
+
+
+class Main {
+    public static void main(String[] args) {
+        Scanner cin = new Scanner(System.in, StandardCharsets.UTF_8.name());
+        String[] commands = JSON.parseObject(cin.nextLine(), String[].class);
+        System.out.println(Arrays.toString(commands));
+        String[] nums = JSON.parseObject(cin.nextLine(), String[].class);
+        System.out.println(Arrays.toString(nums));
+        System.out.println(nums[0]);
+
+        int[][] input = JSON.parseObject(nums[0], int[][].class);
+        System.out.println(Arrays.deepToString(input));
+
+
+        TopVotedCandidate topVotedCandidate =
+                new TopVotedCandidate(input[0], input[1]);
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i<commands.length; i++) {
+            String c = commands[i];
+            if (c.equals("TopVotedCandidate")) {
+                result.add(null);
+            } else if (c.equals("q")) {
+                int[] v = JSON.parseObject(nums[i], int[].class);
+                result.add(topVotedCandidate.q(v[0]));
+                }
+            }
+        System.out.println(result);
+
+    }
+}
